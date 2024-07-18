@@ -5,58 +5,83 @@ import com.codegym.product_baitap.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
-@Controller
-@RequestMapping("/products")
-public class ProductController {
-
-    @Autowired
-    private IProductService productService;
-
-    @GetMapping
-    public String list(Model model) {
-        model.addAttribute("products", productService.findAll());
-        return "product/list";
-    }
+import java.util.List;
 
 
-    @GetMapping("/create")
-    public String create(Model model) {
-        model.addAttribute("product", new Product());
-        return "product/create";
-    }
+    @Controller
+    @RequestMapping("/products")
+    public class ProductController {
 
-    @PostMapping
-    public String create(@ModelAttribute Product product) {
-        productService.save(product);
-        return "redirect:/products";
-    }
+        @Autowired
+        private IProductService productService;
 
-    @PostMapping("/delete")
-    public String delete(Product product, RedirectAttributes redirect) {
-        productService.remove(product.getId());
-        redirect.addFlashAttribute("success", "Removed product successfully!");
-        return "redirect:/products";
-    }
-
-    @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Long id, Model model) {
-        Product product = productService.findById(id);
-        if (product != null) {
-            model.addAttribute("product", product);
-            return "product/edit";
+        @GetMapping("")
+        public String showAll(Model model) {
+            List<Product> products = productService.showAll();
+            model.addAttribute("products", products);
+            return "/list";
         }
-        return "redirect:/products";
-    }
 
-    @PostMapping("/update")
-    public String update(@ModelAttribute Product product) {
-        productService.update(product);
-        return "redirect:/products";
-    }
+        @GetMapping("/create")
+        public String showFormCreate(Model model) {
+            model.addAttribute("product", new Product());
+            return "/create";
+        }
 
-}
+        @PostMapping("/create")
+        public String save(Model model,
+                           @ModelAttribute Product product,
+                           BindingResult bindingResult,
+                           RedirectAttributes redirect) {
+            if (bindingResult.hasErrors()) {
+                model.addAttribute("error", "Vui lòng nhập số");
+                return "/create";
+            }
+            productService.save(product);
+            redirect.addFlashAttribute("noti", "Thêm mới thành công!");
+            return "redirect:/products";
+        }
+
+        @GetMapping("/{id}/delete")
+        public String showFormDelete(@PathVariable Long id,
+                                     Model model) {
+            model.addAttribute("product", productService.findById(id));
+            return "/delete";
+        }
+
+        @PostMapping("/delete")
+        public String delete(@ModelAttribute Product product,
+                             RedirectAttributes redirect) {
+            productService.delete(product.getId());
+            redirect.addFlashAttribute("noti", "Xóa thành công!");
+            return "redirect:/products";
+        }
+
+        @GetMapping("/{id}/update")
+        public String showFormUpdate(@PathVariable Long id,
+                                     Model model) {
+            model.addAttribute("product", productService.findById(id));
+            return "/update";
+        }
+
+        @PostMapping("/update")
+        public String update(@ModelAttribute Product product,
+                             RedirectAttributes redirect) {
+            productService.save(product);
+            redirect.addFlashAttribute("noti", "Sửa thành công!");
+            return "redirect:/products";
+        }
+
+
+        @GetMapping("/search")
+        public String searchProductByName(@RequestParam String keyword,
+                                          Model model) {
+            model.addAttribute("products",productService.searchProductByName(keyword));
+            return "/list";
+        }
+    }
 

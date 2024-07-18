@@ -1,21 +1,29 @@
 package com.codegym.product_baitap.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private double price;
     private String description;
-    private String manufacturer;
+    private String producer;
 
     public Product() {
     }
 
-    public Product(Long id, String name, double price, String description, String manufacturer) {
+    public Product(Long id, String name, double price, String description, String producer) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.description = description;
-        this.manufacturer = manufacturer;
+        this.producer = producer;
     }
 
     public Long getId() {
@@ -50,11 +58,12 @@ public class Product {
         this.description = description;
     }
 
-    public String getManufacturer() {
-        return manufacturer;
+    public String getProducer() {
+        return producer;
     }
 
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
+    public void setProducer(String producer) {
+        this.producer = producer;
     }
 }
+
